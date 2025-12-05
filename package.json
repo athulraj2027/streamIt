@@ -1,5 +1,5 @@
 {
-  "name": "streamIt",
+  "name": "stream-it",
   "private": true,
   "scripts": {
     "build": "turbo run build",
