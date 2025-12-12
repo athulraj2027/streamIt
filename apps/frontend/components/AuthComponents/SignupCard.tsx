@@ -13,9 +13,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-// import { validateSignupForm } from "@/lib/validation";
-// import { signupUser } from "@/lib/api";
-// import { useSignupStore } from "@/store/signupStore";
+import { signupSchema } from "@repo/validators";
 
 const SignUpCard = () => {
   const router = useRouter();

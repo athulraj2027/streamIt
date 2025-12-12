@@ -18,12 +18,6 @@ import {
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-// const FormSchema = z.object({
-//   pin: z.string().regex(/^\d{6}$/, {
-//     message: "Your OTP must be exactly 6 digits.",
-//   }),
-// });
-
 export function InputOTPForm() {
   //   const { username, email, password, role, clearSignupData } = useSignupStore();
   const [loading, setLoading] = useState(false);

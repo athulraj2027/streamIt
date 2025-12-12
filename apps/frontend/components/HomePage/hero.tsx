@@ -3,7 +3,7 @@ import React from "react";
 
 const HeroSection = () => {
   return (
-    <div className="flex flex-col gap-8 justify-center items-center min-h-screen text-center px-4 bg-[#FAF3E1]">
+    <div className="flex flex-col gap-8 justify-center items-center min-h-screen text-center mt-[10%] lg:mt-0 px-4 bg-[#FAF3E1]">
       <h1 className="tracking-tight text-5xl sm:text-6xl font-extrabold text-[#222222] sm:w-[60%] md:w-[50%] mx-[10%] leading-tight">
         Go Live. Build an Audience.
         <span className="text-[#FF6D1F]">Stream Without Limits.</span>

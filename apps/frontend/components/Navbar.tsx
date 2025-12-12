@@ -12,7 +12,7 @@ const Navbar = () => {
 
   return (
     <div className="fixed z-20 tracking-tighter top-0 sm:top-3 w-full  shadow-sm">
-      <div className="px-5 max-w-5xl mx-auto flex justify-between items-center p-3">
+      <div className="px-5 max-w-5xl mx-auto flex justify-around items-center p-3">
         <Link href={`/`}>
           <h1 className="text-2xl font-extrabold text-[#FF6D1F] cursor-pointer hover:opacity-80 transition">
             streamIt.
@@ -24,9 +24,6 @@ const Navbar = () => {
           <ul className="flex justify-around items-center gap-7 font-semibold text-[#222222]">
             <li className="hover:text-[#FF6D1F] transition">
               <Link href={`/`}>Home</Link>
-            </li>
-            <li className="hover:text-[#FF6D1F] transition">
-              <Link href={`/`}>Streams</Link>
             </li>
             <li className="hover:text-[#FF6D1F] transition">
               <Link href={`/`}>About</Link>
@@ -43,7 +40,7 @@ const Navbar = () => {
           </Link>
           <Link href="/sign-up">
             <Button className="rounded-sm bg-[#FF6D1F] text-white hover:bg-[#e55f18] px-8 transition">
-              Start for free
+              Sign up
             </Button>
           </Link>
         </div>
