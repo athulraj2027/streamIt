@@ -1,0 +1,82 @@
+// Simple Streaming Platform Schema
+// Users can create streams, viewers can watch and comment
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum StreamStatus {
+  LIVE
+  ENDED
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  username      String   @unique
+  displayName   String?
+  avatar        String?
+  bio           String?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  streams       Stream[]
+  comments      Comment[]
+
+  @@index([email])
+  @@index([username])
+}
+
+model Stream {
+  id              String       @id @default(cuid())
+  title           String
+  description     String?
+  thumbnailUrl    String?
+  streamKey       String       @unique
+  playbackUrl     String?
+  status          StreamStatus @default(LIVE)
+  
+  // Metrics
+  viewerCount     Int          @default(0)
+  totalViews      Int          @default(0)
+  
+  // Creator
+  creator         User         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  creatorId       String
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  // Relations
+  comments        Comment[]
+
+  @@index([creatorId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  
+  stream    Stream   @relation(fields: [streamId], references: [id], onDelete: Cascade)
+  streamId  String
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([streamId])
+  @@index([userId])
+  @@index([createdAt])
+}
