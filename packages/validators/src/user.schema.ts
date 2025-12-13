@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const loginSchema = z.object({
+export const signinSchema = z.object({
   email: z.email(),
   password: z.string().min(6),
 });
@@ -18,6 +18,13 @@ export const signupSchema = z
   });
 
 export const otpSchema = z.object({
-  email: z.email("Invalid email format"),
-  otp: z.string().length(6, "OTP must be 6 digits"),
+  pin: z
+    .string()
+    .min(6, "OTP must be 6 digits")
+    .max(6)
+    .regex(/^\d+$/, "Must be numbers only"),
 });
+
+export type OtpSchema = z.infer<typeof otpSchema>;
+export type SigninSchema = z.infer<typeof signinSchema>;
+export type SignupSchema = z.infer<typeof signupSchema>;

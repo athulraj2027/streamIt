@@ -3,5 +3,5 @@ const router = express.Router();
 import authRoutes from "./auth.js";
 
 router.use("/auth", authRoutes);
-router.use();
+// router.use();
 export default router;

@@ -15,73 +15,84 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { useSignupStore } from "@/store/signupStore";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Cookies from "js-cookie";
+import { verifyOtp } from "@/actions/auth";
+import { toast } from "sonner";
+import { otpSchema, type OtpSchema } from "@repo/validators";
 
 export function InputOTPForm() {
-  //   const { username, email, password, role, clearSignupData } = useSignupStore();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const { username, email, password, clearSignupData } = useSignupStore();
   const router = useRouter();
 
-  //   async function onSubmit(data: z.infer<typeof FormSchema>) {
-  //     try {
-  //       setLoading(true);
-  //       const res = await verifyOtp(data.pin, email, password, role, username);
-  //       clearSignupData();
-  //       Cookies.set("coursity_token", res.token);
-  //       toast.success("Account verification successful");
-  //       router.push(`/${role.toLowerCase()}`);
-  //     } catch (error: any) {
-  //       setError("Account creation failed");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   }
+  const form = useForm<OtpSchema>({
+    resolver: zodResolver(otpSchema),
+    defaultValues: {
+      pin: "",
+    },
+  });
+
+  async function onSubmit(values: OtpSchema) {
+    try {
+      const res = await verifyOtp(values.pin, email, password, username);
+
+      clearSignupData();
+      Cookies.set("coursity_token", res.token, { expires: 7 }); // optional: 7 days
+      toast.success("Account verified successfully!");
+      router.push("/");
+    } catch (error) {
+      console.error("OTP verification failed:", error);
+      toast.error("Invalid or expired OTP");
+      form.setError("pin", { message: "Invalid OTP" });
+    }
+  }
 
   return (
-    <Form>
-      <form className="w-2/3 space-y-6 bg-[#FAF3E1] p-6 rounded-lg shadow-md text-[#222222]">
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className=" space-y-6 bg-[#FAF3E1] p-8 rounded-lg shadow-md text-[#222222]"
+      >
         <FormField
+          control={form.control}
           name="pin"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[#222222]">
+              <FormLabel className="text-[#222222] text-lg">
                 One-Time Password
               </FormLabel>
               <FormControl>
-                <InputOTP
-                  maxLength={6}
-                  {...field}
-                  pattern="[0-9]*"
-                  inputMode="numeric"
-                >
+                <InputOTP maxLength={6} {...field}>
                   <InputOTPGroup>
-                    {[...Array(6)].map((_, i) => (
+                    {[0, 1, 2, 3, 4, 5].map((index) => (
                       <InputOTPSlot
-                        key={i}
-                        className="bg-[#F5E7C6] border border-[#E2D3B5] text-[#222222]"
+                        key={index}
+                        index={index}
+                        className="bg-[#F5E7C6] border border-[#E2D3B5] text-[#222222] text-xl w-12 h-12"
                       />
                     ))}
                   </InputOTPGroup>
                 </InputOTP>
               </FormControl>
               <FormDescription className="text-[#444444]">
-                Please enter the one-time password sent to your phone. Do not
-                refresh the page.
+                Enter the 6-digit code sent to your email.
+                <br />
+                <span className="font-medium">Do not refresh the page.</span>
               </FormDescription>
-              <FormMessage className="text-red-500" />
+              <FormMessage className="text-red-500 font-medium" />
             </FormItem>
           )}
         />
-        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 
         <Button
           type="submit"
-          disabled={loading}
-          className="w-full bg-[#FF6D1F] hover:bg-[#e55f1b] text-white font-semibold"
+          disabled={form.formState.isSubmitting}
+          className="w-full bg-[#FF6D1F] hover:bg-[#e55f1b] text-white font-semibold text-md py-3 text-lg"
         >
-          {loading ? "Verifying..." : "Verify"}
+          {form.formState.isSubmitting ? "Verifying..." : "Verify Account"}
         </Button>
       </form>
     </Form>
