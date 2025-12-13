@@ -20,13 +20,19 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Cookies from "js-cookie";
-import { verifyOtp } from "@/actions/auth";
+import { sendOtp, verifyOtp } from "@/actions/auth";
 import { toast } from "sonner";
 import { otpSchema, type OtpSchema } from "@repo/validators";
+import { useEffect, useState } from "react";
+
+const RESEND_TIME = 60;
 
 export function InputOTPForm() {
   const { username, email, password, clearSignupData } = useSignupStore();
   const router = useRouter();
+
+  // ⏱ TIMER STATE (starts immediately)
+  const [timeLeft, setTimeLeft] = useState(RESEND_TIME);
 
   const form = useForm<OtpSchema>({
     resolver: zodResolver(otpSchema),
@@ -35,18 +41,40 @@ export function InputOTPForm() {
     },
   });
 
+  // ⏱ Countdown logic (runs immediately on mount)
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timeLeft]);
+
   async function onSubmit(values: OtpSchema) {
     try {
       const res = await verifyOtp(values.pin, email, password, username);
 
+      Cookies.set("streamIt_token", res.token, { expires: 7 });
       clearSignupData();
-      Cookies.set("coursity_token", res.token, { expires: 7 }); // optional: 7 days
       toast.success("Account verified successfully!");
       router.push("/");
     } catch (error) {
       console.error("OTP verification failed:", error);
       toast.error("Invalid or expired OTP");
       form.setError("pin", { message: "Invalid OTP" });
+    }
+  }
+
+  async function handleResendOtp() {
+    try {
+      await sendOtp(email);
+      toast.success("OTP has been sent to your email address");
+      setTimeLeft(RESEND_TIME);
+    } catch (error) {
+      console.log("error : ", error);
+      toast.error("OTP resend failed");
     }
   }
 
@@ -93,6 +121,14 @@ export function InputOTPForm() {
           className="w-full bg-[#FF6D1F] hover:bg-[#e55f1b] text-white font-semibold text-md py-3 text-lg"
         >
           {form.formState.isSubmitting ? "Verifying..." : "Verify Account"}
+        </Button>
+
+        <Button
+          variant="ghost"
+          onClick={handleResendOtp}
+          disabled={timeLeft > 0}
+        >
+          {timeLeft > 0 ? `Resend OTP in ${timeLeft}s` : "Resend OTP"}
         </Button>
       </form>
     </Form>

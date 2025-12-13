@@ -84,16 +84,6 @@ const Navbar = () => {
             </li>
             <li className="hover:text-[#FF6D1F] transition">
               <Link href={`/`} onClick={() => setIsMenuOpen(false)}>
-                Streams
-              </Link>
-            </li>
-            <li className="hover:text-[#FF6D1F] transition">
-              <Link href={`/`} onClick={() => setIsMenuOpen(false)}>
-                Pricing
-              </Link>
-            </li>
-            <li className="hover:text-[#FF6D1F] transition">
-              <Link href={`/`} onClick={() => setIsMenuOpen(false)}>
                 About
               </Link>
             </li>

@@ -25,6 +25,7 @@ import { signinUser } from "@/actions/auth";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 export default function SignInCard() {
   const router = useRouter();
@@ -39,8 +40,8 @@ export default function SignInCard() {
 
   async function onSubmit(values: SigninSchema) {
     try {
-      await signinUser(values.email, values.password);
-
+      const res = await signinUser(values.email, values.password);
+      Cookies.set("streamIt_token", res.token, { expires: 7 });
       toast.success("Welcome back!");
       router.push("/"); // or dashboard
       router.refresh(); // optional: refresh server state

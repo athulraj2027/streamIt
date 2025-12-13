@@ -20,6 +20,8 @@ model User {
   id            String   @id @default(cuid())
   email         String   @unique
   username      String   @unique
+  password      String?
+  googleId      String?
   displayName   String?
   avatar        String?
   bio           String?
@@ -79,4 +81,13 @@ model Comment {
   @@index([streamId])
   @@index([userId])
   @@index([createdAt])
+}
+
+model Otp {
+  id         String   @id @default(cuid())
+  email      String
+  code       String
+  expiresAt  DateTime
+  verified   Boolean  @default(false)
+  createdAt  DateTime @default(now())
 }
