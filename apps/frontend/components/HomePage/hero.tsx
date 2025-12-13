@@ -10,8 +10,9 @@ const HeroSection = () => {
       </h1>
 
       <p className="text-lg sm:text-xl tracking-tight font-light text-[#222222]/80 mx-[10%] sm:w-[80%] md:w-[45%]">
-        streamIt lets creators broadcast blazing-fast, low-latency streams with
-        real-time chat, viewer analytics, and a modern UI — all
+        <span className="font-bold ">streamIt</span> lets creators
+        broadcast blazing-fast, low-latency streams with real-time chat, viewer
+        analytics, and a modern UI — all
         <span className="text-[#FF6D1F] font-bold">
           {" "}
           powered by Next.js, Mediasoup, WebRTC, and HLS.

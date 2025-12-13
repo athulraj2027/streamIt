@@ -1,3 +1,4 @@
+import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 
 export default function AuthLayout({
@@ -11,6 +12,7 @@ export default function AuthLayout({
       <div className="flex min-h-screen justify-center items-center mt-10 bg-background text-foreground">
         {children}
       </div>
+      <Footer />
     </>
   );
 }
