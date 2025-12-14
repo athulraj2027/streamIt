@@ -1,9 +1,11 @@
 "use client";
+import { getChannels, startStream, stopStream } from "@/actions/stream";
 import { StreamLayout } from "@/components/layouts/StreamLayout";
 import { ChannelList } from "@/components/stream/ChannelList";
 import { ChatSection } from "@/components/stream/Chat";
 import { VideoPlayer } from "@/components/stream/Video";
-import React, { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export interface Channel {
   id: string;
@@ -19,17 +21,24 @@ export interface Comment {
   timestamp: string;
 }
 
-const StreamsPage = () => {
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
+interface StreamFormData {
+  name: string;
+  description: string;
+}
 
-  // Mock data for channels
-  const channels: Channel[] = [
-    { id: "1", name: "Gaming Zone", viewers: 1234, live: true },
-    { id: "2", name: "Tech Talks", viewers: 567, live: true },
-    { id: "3", name: "Music Live", viewers: 890, live: false },
-    { id: "4", name: "Coding Stream", viewers: 234, live: true },
-  ];
+const StreamsPage = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [channels, setChannels] = useState<Channel[]>([]);
+
+  // Get state from URL params
+  const selectedChannel = searchParams.get("channel");
+  const isStreaming = searchParams.get("streaming") === "true";
+
+  // Keep stream details in local state
+  const [streamName, setStreamName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [streamDescription, setStreamDescription] = useState("");
 
   // Mock data for comments
   const comments: Comment[] = [
@@ -43,13 +52,64 @@ const StreamsPage = () => {
     { id: "3", user: "Viewer789", message: "Keep it up!", timestamp: "8m ago" },
   ];
 
+  useEffect(() => {
+    const fetchChannels = async () => {
+      try {
+        const channelsData = await getChannels();
+        setChannels(channelsData);
+      } catch (error) {
+        console.error("Failed to load channels:", error);
+      }
+    };
+    fetchChannels();
+  }, []);
+
   // Find selected channel data
   const selectedChannelData =
     channels.find((c) => c.id === selectedChannel) || null;
 
   // Handlers
-  const handleGoBack = () => setSelectedChannel(null);
-  const handleToggleStreaming = () => setIsStreaming(!isStreaming);
+  const handleChannelSelect = (channelId: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("channel", channelId);
+    params.delete("streaming");
+    params.delete("streamName");
+    params.delete("streamDescription");
+    router.push(`?${params.toString()}`);
+  };
+
+  const handleGoBack = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("channel");
+    router.push(`?${params.toString()}`);
+  };
+
+  const handleToggleStreaming = async (streamData?: StreamFormData) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams(searchParams.toString());
+      if (!isStreaming && streamData) {
+        await startStream(streamData);
+        setStreamName(streamData.name);
+        setStreamDescription(streamData.description);
+        params.set("streaming", "true");
+        params.delete("channel");
+      } else {
+        // Stop streaming
+        await stopStream();
+        setStreamName("");
+        setStreamDescription("");
+        params.delete("streaming");
+      }
+
+      router.push(`?${params.toString()}`);
+    } catch (error) {
+      console.error("Streaming action failed:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSendMessage = (message: string) => {
     console.log("Sending message:", message);
     // Add your API call here to send the message
@@ -59,16 +119,18 @@ const StreamsPage = () => {
     <div className="min-h-screen bg-[#FAF3E1] pt-20">
       <div className="max-w-[1600px] mx-auto px-4 py-6">
         <StreamLayout
+          isStreaming={isStreaming}
           leftSidebar={
             <ChannelList
               channels={channels}
               selectedChannel={selectedChannel}
-              onChannelSelect={setSelectedChannel}
+              onChannelSelect={handleChannelSelect}
             />
           }
           mainContent={
             <VideoPlayer
               selectedChannel={selectedChannelData}
+              isStreaming={isStreaming}
               onGoBack={handleGoBack}
               showBackButton={true}
             />
@@ -78,8 +140,11 @@ const StreamsPage = () => {
               selectedChannel={selectedChannel}
               comments={comments}
               isStreaming={isStreaming}
+              streamName={streamName}
+              streamDescription={streamDescription}
               onToggleStreaming={handleToggleStreaming}
               onSendMessage={handleSendMessage}
+              loading={loading}
             />
           }
         />

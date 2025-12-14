@@ -5,21 +5,23 @@ export interface Channel {
   live: boolean;
 }
 
-interface VideoPlayerProps {
-  selectedChannel: Channel | null;
-  onGoBack?: () => void;
-  showBackButton?: boolean;
+export interface Comment {
+  id: string;
+  user: string;
+  message: string;
+  timestamp: string;
 }
 
-export const VideoPlayer: React.FC<VideoPlayerProps> = ({
-  selectedChannel,
-  onGoBack,
-  showBackButton = false,
-}) => {
+export const VideoPlayer: React.FC<{
+  selectedChannel: Channel | null;
+  isStreaming: boolean;
+  onGoBack?: () => void;
+  showBackButton?: boolean;
+}> = ({ selectedChannel, isStreaming, onGoBack, showBackButton = false }) => {
   return (
     <div className="flex-1 bg-[#222222] rounded-lg shadow-sm overflow-hidden flex flex-col lg:h-full">
       <div className="flex-1 lg:min-h-0 aspect-video lg:aspect-auto flex items-center justify-center">
-        {selectedChannel ? (
+        {selectedChannel || isStreaming ? (
           <div className="w-full h-full bg-black/50 flex items-center justify-center">
             <div className="text-center">
               <div className="w-16 h-16 bg-[#FF6D1F] rounded-full flex items-center justify-center mx-auto mb-4">
@@ -31,7 +33,11 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                   <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
                 </svg>
               </div>
-              <p className="text-[#F5E7C6] text-lg">Stream is playing...</p>
+              <p className="text-[#F5E7C6] text-lg">
+                {isStreaming
+                  ? "Your stream is live..."
+                  : "Stream is playing..."}
+              </p>
             </div>
           </div>
         ) : (
@@ -58,7 +64,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         )}
       </div>
 
-      {selectedChannel && (
+      {(selectedChannel || isStreaming) && (
         <div className="bg-[#222222]/90 px-4 py-3 border-t border-[#F5E7C6]/10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -84,7 +90,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 </button>
               )}
               <h3 className="text-[#F5E7C6] font-semibold lg:text-base text-sm">
-                {selectedChannel.name}
+                {isStreaming ? "Your Stream" : selectedChannel?.name}
               </h3>
             </div>
             <button className="lg:px-3 lg:py-1 px-3 py-1.5 bg-[#FF6D1F] hover:bg-[#e55f18] text-white rounded lg:text-sm text-xs transition">

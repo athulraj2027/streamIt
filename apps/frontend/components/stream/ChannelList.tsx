@@ -1,5 +1,3 @@
-import React from "react";
-
 export interface Channel {
   id: string;
   name: string;
@@ -7,17 +5,20 @@ export interface Channel {
   live: boolean;
 }
 
-interface ChannelListProps {
+export interface Comment {
+  id: string;
+  user: string;
+  message: string;
+  timestamp: string;
+}
+
+
+
+export const ChannelList: React.FC<{
   channels: Channel[];
   selectedChannel: string | null;
   onChannelSelect: (channelId: string) => void;
-}
-
-export const ChannelList: React.FC<ChannelListProps> = ({
-  channels,
-  selectedChannel,
-  onChannelSelect,
-}) => {
+}> = ({ channels, selectedChannel, onChannelSelect }) => {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-[#222222]/10 overflow-hidden flex flex-col w-full lg:w-64 lg:h-full">
       <div className="bg-[#222222] px-4 py-3">
