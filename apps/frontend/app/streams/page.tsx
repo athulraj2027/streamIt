@@ -1,11 +1,16 @@
 "use client";
 import { getChannels, startStream, stopStream } from "@/actions/stream";
 import { StreamLayout } from "@/components/layouts/StreamLayout";
+import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { ChannelList } from "@/components/stream/ChannelList";
 import { ChatSection } from "@/components/stream/Chat";
 import { VideoPlayer } from "@/components/stream/Video";
+import { socket } from "@/lib/socket";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import * as mediasoupClient from "mediasoup-client";
+import { RtpCapabilities } from "mediasoup-client/types";
+import { createDevice } from "@/actions/mediasoup";
 
 export interface Channel {
   id: string;
@@ -38,6 +43,8 @@ const StreamsPage = () => {
   // Keep stream details in local state
   const [streamName, setStreamName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [transport, setTransport] = useState("N/A");
   const [streamDescription, setStreamDescription] = useState("");
 
   // Mock data for comments
@@ -64,12 +71,46 @@ const StreamsPage = () => {
     fetchChannels();
   }, []);
 
+  useEffect(() => {
+    if (socket.connected) {
+      onConnect();
+    }
+
+    function onConnect() {
+      setIsConnected(true);
+      setTransport(socket.io.engine.transport.name);
+
+      socket.io.engine.on("upgrade", (transport) => {
+        setTransport(transport.name);
+      });
+    }
+
+    function onDisconnect() {
+      setIsConnected(false);
+      setTransport("N/A");
+    }
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+    };
+  }, []);
+
+  // Clear loading state when URL params change
+  useEffect(() => {
+    setLoading(false);
+  }, [selectedChannel, isStreaming]);
+
   // Find selected channel data
   const selectedChannelData =
     channels.find((c) => c.id === selectedChannel) || null;
 
   // Handlers
   const handleChannelSelect = (channelId: string) => {
+    setLoading(true);
     const params = new URLSearchParams(searchParams.toString());
     params.set("channel", channelId);
     params.delete("streaming");
@@ -89,11 +130,72 @@ const StreamsPage = () => {
     try {
       const params = new URLSearchParams(searchParams.toString());
       if (!isStreaming && streamData) {
-        await startStream(streamData);
+        const response = await startStream(streamData);
+        const stream = response.stream;
         setStreamName(streamData.name);
         setStreamDescription(streamData.description);
         params.set("streaming", "true");
         params.delete("channel");
+        socket.emit(
+          "create-stream",
+          { stream },
+          async (rtpCapabilities: any) => {
+            const device = await createDevice(rtpCapabilities);
+            socket.emit(
+              "create-transport",
+              {
+                recv: false,
+                streamId: stream.id,
+                isStreamer: true,
+                userId: stream.creatorId,
+              },
+              async (params: any) => {
+                try {
+                  const transport = device.createSendTransport(params);
+                  console.log(
+                    "send transport created for streamer  :",
+                    transport.id
+                  );
+                  transport.on(
+                    "connect",
+                    async ({ dtlsParameters }, cb, erback) => {
+                      socket.emit(
+                        "connect-transport",
+                        {
+                          transportId: transport.id,
+                          dtlsParameters,
+                          streamId: stream.id,
+                          isStreamer: true,
+                          userId: stream.creatorId,
+                        },
+                        () => {
+                          console.log("Server confirmed the connection.");
+                          cb();
+                        }
+                      );
+                    }
+                  );
+
+                  transport.on("produce", ({ kind, rtpParameters }, cb) => {
+                    socket.emit(
+                      "produce",
+                      {
+                        streamId: stream.id,
+                        transportId: transport.id,
+                        kind,
+                        rtpParameters,
+                        userId: stream.creatorId,
+                      },
+                      ({ id }) => cb({ id })
+                    );
+                  });
+                } catch (error) {
+                  console.log("Error in creating transport : ", error);
+                }
+              }
+            );
+          }
+        );
       } else {
         // Stop streaming
         await stopStream();
@@ -105,7 +207,6 @@ const StreamsPage = () => {
       router.push(`?${params.toString()}`);
     } catch (error) {
       console.error("Streaming action failed:", error);
-    } finally {
       setLoading(false);
     }
   };
@@ -117,6 +218,7 @@ const StreamsPage = () => {
 
   return (
     <div className="min-h-screen bg-[#FAF3E1] pt-20">
+      {loading && <LoadingOverlay />}
       <div className="max-w-[1600px] mx-auto px-4 py-6">
         <StreamLayout
           isStreaming={isStreaming}
