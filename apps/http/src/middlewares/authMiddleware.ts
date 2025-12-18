@@ -18,7 +18,7 @@ export const authenticate = (
 ) => {
   let token;
   const authHeader = req.headers.authorization;
-
+console.log("auth Header : ",authHeader)
   if (authHeader && authHeader.startsWith("Bearer "))
     token = authHeader.split(" ")[1];
   if (!token && req.cookies) token = req.cookies["streamIt_token"];

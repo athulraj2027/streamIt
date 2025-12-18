@@ -25,10 +25,11 @@ import { signinUser } from "@/actions/auth";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
+import { useAuth } from "@/context/authContext";
 
 export default function SignInCard() {
   const router = useRouter();
+  const { fetchUser } = useAuth();
 
   const form = useForm<SigninSchema>({
     resolver: zodResolver(signinSchema),
@@ -41,9 +42,9 @@ export default function SignInCard() {
   async function onSubmit(values: SigninSchema) {
     try {
       const res = await signinUser(values.email, values.password);
-      Cookies.set("streamIt_token", res.token, { expires: 7 });
       toast.success("Welcome back!");
-      router.push("/"); // or dashboard
+      fetchUser();
+      router.push("/streams"); // or dashboard
       router.refresh(); // optional: refresh server state
     } catch (error: any) {
       const message = error.message || "Invalid email or password";

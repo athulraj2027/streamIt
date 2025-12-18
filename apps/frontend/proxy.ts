@@ -1,39 +1,47 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import * as jose from "jose";
+
 const SECRET = new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET);
 
-// This function can be marked `async` if using `await` inside
-export async function proxy(request: NextRequest) {
-  const token = request.cookies.get("streamIt_token")?.value;
-  console.log("token received for middleware :  ", token);
-
-  const { pathname } = request.nextUrl;
+export async function proxy(req: NextRequest) {
+  const token = req.cookies.get("streamIt_token")?.value;
+  const { pathname } = req.nextUrl;
+  console.log("token ", token);
 
   const publicPaths = ["/", "/sign-in", "/sign-up", "/verify-otp"];
 
-  const isPublic = publicPaths.some((path) => pathname === path);
-
-  if (!token && !isPublic) {
-    console.log("No token found, redirecting to signin page");
-    return NextResponse.redirect(new URL("/sign-in", request.url));
+  const isPublic = publicPaths.includes(pathname);
+  const isProtected = pathname.startsWith("/streams");
+  // If no token and trying to access protected route
+  if (!token && isProtected) {
+    console.log("no token, but /stream route");
+    return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 
   if (token) {
     try {
-      const decoded = await jose.jwtVerify(token, SECRET);
-      console.log("decoded : ", decoded);
-
+      console.log("Token found");
+      await jose.jwtVerify(token, SECRET);
       if (isPublic) {
-        return NextResponse.redirect(new URL(`/streams`, request.url));
+        console.log("but public route");
+        return NextResponse.redirect(new URL("/streams", req.url));
       }
-    } catch (error) {
-      console.error("JWT Error:", error);
-      const loginUrl = new URL("/sign-in", request.url);
-      return NextResponse.redirect(loginUrl);
+      return NextResponse.next();
+    } catch (err) {
+      console.error("JWT Error:", err);
+      return NextResponse.redirect(new URL("/sign-in", req.url));
     }
   }
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/", "/sign-in", "/verify-otp", "/sign-up", "/streams"],
+  matcher: [
+    "/",
+    "/sign-in",
+    "/sign-up",
+    "/verify-otp",
+    "/streams/:path*",
+    "/streams",
+  ],
 };

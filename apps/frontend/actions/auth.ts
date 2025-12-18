@@ -23,7 +23,8 @@ export const verifyOtp = async (
     `${process.env.NEXT_PUBLIC_API_URL}/auth/verify-otp`,
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" ,},
+      credentials: "include",
       body: JSON.stringify({ otp, email, password, username }),
     }
   );
@@ -40,6 +41,7 @@ export const verifyOtp = async (
 export const signinUser = async (email: string, password: string) => {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
     method: "POST",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });

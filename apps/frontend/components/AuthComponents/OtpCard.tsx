@@ -19,15 +19,16 @@ import { useSignupStore } from "@/store/signupStore";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Cookies from "js-cookie";
 import { sendOtp, verifyOtp } from "@/actions/auth";
 import { toast } from "sonner";
 import { otpSchema, type OtpSchema } from "@repo/validators";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/authContext";
 
 const RESEND_TIME = 60;
 
 export function InputOTPForm() {
+  const { fetchUser } = useAuth();
   const { username, email, password, clearSignupData } = useSignupStore();
   const router = useRouter();
 
@@ -55,11 +56,10 @@ export function InputOTPForm() {
   async function onSubmit(values: OtpSchema) {
     try {
       const res = await verifyOtp(values.pin, email, password, username);
-
-      Cookies.set("streamIt_token", res.token, { expires: 7 });
+      await fetchUser();
       clearSignupData();
       toast.success("Account verified successfully!");
-      router.push("/");
+      router.push("/streams");
     } catch (error) {
       console.error("OTP verification failed:", error);
       toast.error("Invalid or expired OTP");

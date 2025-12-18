@@ -45,6 +45,7 @@ export default function transportEvents(io: Server, socket: Socket) {
         );
 
         await transport.connect({ dtlsParameters });
+        console.log("Transport connected");
 
         cb({ connected: true });
       } catch (error) {

@@ -13,8 +13,9 @@ import { sendEmail } from "../../helpers/mail.js";
 const setAuthCookie = (res: Response, token: string) => {
   res.cookie(`${process.env.PROJECT_NAME}_token`, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: false,
     sameSite: "lax",
+    path: "/",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 };
@@ -113,7 +114,6 @@ const verifyOtp = async (req: Request, res: Response) => {
         email: newUser.email,
         username: newUser.username,
       },
-      token,
     });
   } catch (error) {
     console.log("Error in verifying OTP : ", error);
@@ -145,7 +145,6 @@ const login = async (req: Request, res: Response) => {
     return res.status(201).json({
       message: "Logged in successfully",
       user: { id: user.id, email: user.email },
-      token,
     });
   } catch (error) {
     console.log("Error in logging in : ", error);
