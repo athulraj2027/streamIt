@@ -1,7 +1,8 @@
 import { Worker } from "mediasoup/types";
 import { Server, Socket } from "socket.io";
-import createRouter from "../mediasoup/router";
-import { StreamerState, StreamMap, StreamState } from "../store/stream";
+
+import createRouter from "../../mediasoup/router";
+import { StreamerState, StreamMap, StreamState } from "../../store/stream";
 
 export default function roomEvents(io: Server, socket: Socket, worker: Worker) {
   socket.on("create-stream", async ({ stream }, cb) => {
@@ -38,10 +39,4 @@ export default function roomEvents(io: Server, socket: Socket, worker: Worker) {
   });
 
   socket.on("end-stream", async () => {});
-
-  socket.on("leave-stream", async () => {});
-
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
-  });
 }

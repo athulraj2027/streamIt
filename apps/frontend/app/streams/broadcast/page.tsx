@@ -185,7 +185,6 @@ export default function Home() {
           </div>
         }
         mainContent={
-          
           localStream ? (
             <video
               ref={localVideoRef}

@@ -2,7 +2,9 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import { startMediaSoupServer } from "./mediasoup/worker";
-import events from "./events";
+
+import streamerEvents from "./events/streamerEvents";
+import viewerEvents from "./events/viewerEvents";
 
 async function bootstrap() {
   const app = express();
@@ -38,8 +40,8 @@ async function bootstrap() {
       return;
     }
 
-    // pass worker to event handlers
-    events(io, socket, worker);
+    streamerEvents(io, socket, worker);
+    viewerEvents(io, socket);
 
     socket.on("disconnect", () => {
       console.log("User disconnected:", socket.id);

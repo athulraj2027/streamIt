@@ -46,6 +46,7 @@ const WatchStreamPage = () => {
   }, []);
 
   useEffect(() => {
+    socket.emit("join-stream", { streamId }, async () => {});
     // TODO: Connect to stream and consume media
     // This is where you'd implement the viewer-side WebRTC logic
     // socket.emit("join-stream", { streamId });
@@ -77,13 +78,10 @@ const WatchStreamPage = () => {
     }
   };
 
-  const selectedChannel = channels.find((c) => c.id === streamId) || null;
-
   return (
     <div className="min-h-screen bg-[#FAF3E1] pt-20">
       <div className="max-w-[1600px] mx-auto px-4 py-6">
         <StreamLayout
-          isStreaming={false}
           leftSidebar={
             <ChannelList
               channels={channels}

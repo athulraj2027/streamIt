@@ -1,5 +1,5 @@
 import { Server, Socket } from "socket.io";
-import { createProducer } from "../mediasoup/producer";
+import { createProducer } from "../../mediasoup/producer";
 
 export default function producerEvents(io: Server, socket: Socket) {
   socket.on(
