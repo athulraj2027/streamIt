@@ -32,6 +32,7 @@ export default function Home() {
   ]);
 
   const sendTransportRef = useRef<Transport | null>(null);
+  const startedRef = useRef<boolean>(false);
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
 
   const createDevice = async (rtp: RtpCapabilities) => {
@@ -76,6 +77,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    
+    if (!stream || startedRef.current) return;
+    console.log("🎬 START STREAM EFFECT");
+    startedRef.current = true;
     socket.emit(
       "create-stream",
       { stream },

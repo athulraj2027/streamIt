@@ -5,6 +5,7 @@ import { startMediaSoupServer } from "./mediasoup/worker";
 
 import streamerEvents from "./events/streamerEvents";
 import viewerEvents from "./events/viewerEvents";
+import transportEvents from "./events/transport";
 
 async function bootstrap() {
   const app = express();
@@ -42,6 +43,7 @@ async function bootstrap() {
 
     streamerEvents(io, socket, worker);
     viewerEvents(io, socket);
+    transportEvents(io, socket);
 
     socket.on("disconnect", () => {
       console.log("User disconnected:", socket.id);

@@ -7,6 +7,12 @@ import { socket } from "@/lib/socket";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createDevice } from "@/actions/mediasoup";
+import {
+  RtpCapabilities,
+  RtpParameters,
+  Transport,
+} from "mediasoup-client/types";
+import { useAuth } from "@/context/authContext";
 
 export interface Channel {
   id: string;
@@ -26,12 +32,15 @@ const WatchStreamPage = () => {
   const params = useParams();
   const router = useRouter();
   const streamId = params.id as string;
+  const { user } = useAuth();
 
   const [channels, setChannels] = useState<Channel[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [message, setMessage] = useState("");
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const recvTransportRef = useRef<Transport | null>(null);
+  const joinedRef = useRef<boolean>(false);
 
   useEffect(() => {
     const fetchChannels = async () => {
@@ -46,12 +55,92 @@ const WatchStreamPage = () => {
   }, []);
 
   useEffect(() => {
-    socket.emit("join-stream", { streamId }, async () => {});
+    if (!streamId || !user?.id || joinedRef.current) return;
+    joinedRef.current = true;
+    socket.emit(
+      "join-stream",
+      { streamId, userId: user?.id },
+      async (rtp: RtpCapabilities) => {
+        const device = await createDevice(rtp);
+
+        socket.emit(
+          "create-transport",
+          {
+            recv: true,
+            streamId,
+            isStreamer: false,
+            userId: user?.id,
+          },
+          async (params: any) => {
+            try {
+              const transport = device.createRecvTransport(params);
+              transport.on("connect", async ({ dtlsParameters }, cb) => {
+                socket.emit(
+                  "connect-transport",
+                  {
+                    transportId: transport.id,
+                    dtlsParameters,
+                    streamId,
+                    isStreamer: false,
+                    userId: user?.id,
+                  },
+                  () => {
+                    console.log("Server confirmed the connection.");
+                    cb();
+                  }
+                );
+              });
+
+              recvTransportRef.current = transport;
+              console.log("Transport created  :", recvTransportRef.current.id);
+              socket.emit(
+                "get-producers",
+                { streamId },
+                async (producerIds: string[]) => {
+                  console.log("producerIds : ", producerIds);
+                  const { rtpCapabilities } = device;
+                  producerIds.forEach((id) => {
+                    socket.emit(
+                      "consume",
+                      {
+                        producerId: id,
+                        transportId: recvTransportRef.current?.id,
+                        rtpCapabilities,
+                        streamId,
+                        userId: user.id,
+                      },
+                      async (response: {
+                        id: string;
+                        producerId: string;
+                        kind: string;
+                        rtpParameters: RtpParameters;
+                      }) => {
+                        const { id, producerId, kind, rtpParameters } =
+                          response;
+                        console.log("response from consume : ", response);
+                        // const consumer = await recvTransportRef.current?.consume({
+                        //   id,
+                        //   producerId,
+                        //   kind,
+                        //   rtpParameters,
+                        // });
+                      }
+                    );
+                  });
+                }
+              );
+            } catch (error) {
+              console.error("Error making transport:", error);
+            }
+          }
+        );
+      }
+    );
     // TODO: Connect to stream and consume media
     // This is where you'd implement the viewer-side WebRTC logic
     // socket.emit("join-stream", { streamId });
     // socket.on("consume", async (data) => { ... });
-  }, [streamId]);
+  }, [streamId, user]);
 
   useEffect(() => {
     if (remoteVideoRef.current && remoteStream) {

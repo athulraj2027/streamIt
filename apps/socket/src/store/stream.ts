@@ -26,7 +26,7 @@ export interface StreamerState {
 export interface StreamState {
   router: Router;
   streamer: StreamerState;
-  viewers: Map<string, ViewerState>; // key = viewerSocketId
+  viewers: Map<string, ViewerState>; // key = userId
 }
 
 export const StreamMap = new Map<string, StreamState>();
