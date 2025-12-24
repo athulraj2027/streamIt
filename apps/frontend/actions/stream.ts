@@ -13,7 +13,7 @@ export const getChannels = async () => {
   });
 
   const data = await res.json();
-  console.log(data);
+  console.log("data ", data);
   if (!res.ok) {
     throw new Error(data?.message || "Failed to fetch channels");
   }
@@ -57,6 +57,7 @@ export const stopStream = async (streamData: {
   stream: any;
 }) => {
   const cookieStore = await cookies();
+  const token = cookieStore.get("streamIt_token")?.value;
   const { viewers, stream } = streamData;
   const uniqueViewers = Array.from(
     new Map(viewers.map((v) => [v.id, v])).values()
@@ -67,7 +68,10 @@ export const stopStream = async (streamData: {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/streams`, {
     method: "PATCH",
     credentials: "include",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify(frontendData),
   });
   const data = await res.json();
@@ -75,6 +79,6 @@ export const stopStream = async (streamData: {
   if (!res.ok) {
     throw new Error(data?.message || "Failed to stop streaming");
   }
-  cookieStore.delete("active_stream");
+  cookieStore.delete("active-stream");
   return data;
 };

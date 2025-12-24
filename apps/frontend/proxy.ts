@@ -5,6 +5,7 @@ const SECRET = new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET);
 
 export async function proxy(req: NextRequest) {
   const token = req.cookies.get("streamIt_token")?.value;
+  const streamToken = req.cookies.get("active-stream")?.value;
   const { pathname } = req.nextUrl;
   console.log("token ", token);
 
@@ -24,6 +25,10 @@ export async function proxy(req: NextRequest) {
       await jose.jwtVerify(token, SECRET);
       if (isPublic) {
         console.log("but public route");
+        return NextResponse.redirect(new URL("/streams", req.url));
+      }
+      if (!streamToken && pathname === "/streams/broadcast") {
+        console.log("trying to reach illegal broadcast route");
         return NextResponse.redirect(new URL("/streams", req.url));
       }
       return NextResponse.next();

@@ -36,7 +36,7 @@ const WatchStreamPage = () => {
   const router = useRouter();
   const streamId = params.id as string;
   const { user } = useAuth();
-
+  const [loading, setLoading] = useState(true);
   const [channels, setChannels] = useState<Channel[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [message, setMessage] = useState("");
@@ -74,14 +74,30 @@ const WatchStreamPage = () => {
   useEffect(() => {
     const fetchChannels = async () => {
       try {
+        setLoading(true);
         const channelsData = await getChannels();
+        console.log("channeldata:", channelsData);
+
+        const channelExists = channelsData.some(
+          (channel: any) => channel.id === streamId
+        );
+
+        if (!channelExists) {
+          router.push("/streams");
+          // toast.error("The stream does not exist");
+          return;
+        }
+
         setChannels(channelsData);
       } catch (error) {
         console.error("Failed to load channels:", error);
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchChannels();
-  }, []);
+  }, [router, streamId]);
 
   useEffect(() => {
     if (!streamId || !user?.id || joinedRef.current) return;
@@ -359,8 +375,15 @@ const WatchStreamPage = () => {
     }
   };
 
+  if (loading)
+    return (
+      <div className="bg-white z-50 flex items-center h-screen w-screen text-black font-extrabold justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+
   return (
-    <div className="h-screen bg-[#FAF3E1] pt-20">
+    <div className="h-screen bg-[#FAF3E1] ">
       <div className="max-w-[1600px] h-full mx-auto px-4 py-6 flex flex-wrap justify-between">
         <div
           className="w-full md:w-[60%]  rounded-md"

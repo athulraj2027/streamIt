@@ -37,9 +37,6 @@ export const ChannelList: React.FC<{
                   <h3 className="font-semibold text-[#222222] text-sm truncate">
                     {channel.name}
                   </h3>
-                  <p className="text-xs text-[#222222]/60 mt-1">
-                    {channel.viewers.toLocaleString()} viewers
-                  </p>
                 </div>
                 {channel.live && (
                   <span className="ml-2 px-2 py-0.5 bg-[#FF6D1F] text-white text-xs font-semibold rounded">
