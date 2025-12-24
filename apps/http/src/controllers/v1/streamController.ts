@@ -73,7 +73,7 @@ const getAllStreams = async (req: Request, res: Response) => {
       orderBy: { viewerCount: "desc" },
     });
 
-    const channels = streams.map((stream) => ({
+    const channels = streams.map((stream: any) => ({
       id: stream.id,
       name: stream.title,
       viewers: stream.viewerCount,
