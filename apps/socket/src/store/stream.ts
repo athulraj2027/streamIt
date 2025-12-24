@@ -1,11 +1,16 @@
-import { Consumer, Producer, Router, WebRtcTransport } from "mediasoup/types";
+import {
+  Consumer,
+  Producer,
+  Router,
+  Transport,
+} from "mediasoup/types";
 export interface ViewerState {
   userId: string;
 
   sockets: Map<
     string, // socketId
     {
-      transports: Map<string, WebRtcTransport>;
+      transports: Map<string, Transport>;
       consumers: Map<string, Consumer>;
     }
   >;
@@ -17,7 +22,7 @@ export interface StreamerState {
   sockets: Map<
     string, // socketId
     {
-      transports: Map<string, WebRtcTransport>;
+      transports: Map<string, Transport>;
       producers: Map<string, Producer>;
     }
   >;
@@ -35,7 +40,7 @@ export function storeStreamerTransport(
   stream: StreamState,
   userId: string,
   socketId: string,
-  transport: WebRtcTransport
+  transport: Transport
 ) {
   const streamer = stream.streamer;
 
@@ -56,7 +61,7 @@ export function storeViewerTransport(
   stream: StreamState,
   userId: string,
   socketId: string,
-  transport: WebRtcTransport
+  transport: Transport
 ) {
   let viewer = stream.viewers.get(userId);
 

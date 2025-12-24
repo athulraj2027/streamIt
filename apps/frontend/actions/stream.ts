@@ -52,12 +52,23 @@ export const startStream = async (streamData?: StreamFormData) => {
   return data;
 };
 
-export const stopStream = async () => {
+export const stopStream = async (streamData: {
+  viewers: { id: string; username: string }[];
+  stream: any;
+}) => {
   const cookieStore = await cookies();
+  const { viewers, stream } = streamData;
+  const uniqueViewers = Array.from(
+    new Map(viewers.map((v) => [v.id, v])).values()
+  );
+
+  const viewersCount = uniqueViewers.length;
+  const frontendData = { viewersCount, stream };
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/streams`, {
     method: "PATCH",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(frontendData),
   });
   const data = await res.json();
   console.log(data);

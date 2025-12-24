@@ -24,7 +24,7 @@ export async function createTransport(
     ],
     enableUdp: true,
     enableTcp: true,
-    preferUdp: true,
+    preferUdp: true, 
     appData: {
       socketId: socket.id,
       recv,

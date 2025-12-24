@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
@@ -6,6 +8,12 @@ import { startMediaSoupServer } from "./mediasoup/worker";
 import streamerEvents from "./events/streamerEvents";
 import viewerEvents from "./events/viewerEvents";
 import transportEvents from "./events/transport";
+import messageEvents from "./events/message";
+
+// backend/index.ts - RIGHT AT THE TOP
+console.log("🌐 MEDIASOUP CONFIG:", {
+  ANNOUNCED_IP: process.env.ANNOUNCED_IP || "⚠️ NOT SET!",
+});
 
 async function bootstrap() {
   const app = express();
@@ -44,10 +52,9 @@ async function bootstrap() {
     streamerEvents(io, socket, worker);
     viewerEvents(io, socket);
     transportEvents(io, socket);
+    messageEvents(io, socket);
 
-    socket.on("disconnect", () => {
-      console.log("User disconnected:", socket.id);
-    });
+    
   });
 
   server.listen(5000, () => {

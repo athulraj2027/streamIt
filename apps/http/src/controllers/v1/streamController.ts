@@ -136,6 +136,7 @@ const leaveStream = async (req: Request, res: Response) => {
 const endStream = async (req: Request, res: Response) => {
   try {
     const { id } = req.user;
+    const { viewersCount, stream } = req.body;
 
     const updatedStream = await prisma.stream.updateMany({
       where: {
@@ -144,7 +145,7 @@ const endStream = async (req: Request, res: Response) => {
       },
       data: {
         status: "ENDED",
-        viewerCount: 0,
+        viewerCount: viewersCount,
       },
     });
 

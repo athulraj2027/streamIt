@@ -29,8 +29,6 @@ export default function consumerEvents(io: Server, socket: Socket) {
       try {
         const stream = StreamMap.get(streamId);
         if (!stream) throw new Error("Stream not found");
-
-        //  Validate router compatibility
         if (
           !stream.router.canConsume({
             producerId,
@@ -39,8 +37,6 @@ export default function consumerEvents(io: Server, socket: Socket) {
         ) {
           throw new Error("Cannot consume this producer");
         }
-
-        //  Find viewer transport
         const transport = findTransport(
           stream,
           false, // isStreamer
@@ -54,6 +50,8 @@ export default function consumerEvents(io: Server, socket: Socket) {
           rtpCapabilities,
           paused: true,
         });
+
+        console.log("consumer created : ", consumer);
 
         //  Store consumer in viewer socket state
         const viewer = stream.viewers.get(userId)!;
@@ -83,4 +81,37 @@ export default function consumerEvents(io: Server, socket: Socket) {
       }
     }
   );
+
+  socket.on("resume-consumer", async ({ streamId, userId, consumerId }) => {
+    try {
+      const stream = StreamMap.get(streamId);
+      if (!stream) throw new Error("Stream not found");
+
+      const viewer = stream.viewers.get(userId);
+      if (!viewer) throw new Error("Viewer not found");
+
+      const socketState = viewer.sockets.get(socket.id);
+      if (!socketState) throw new Error("Viewer socket state not found");
+
+      const consumer = socketState.consumers.get(consumerId);
+      if (!consumer) throw new Error("Consumer not found");
+
+      if (!consumer.paused) {
+        console.log("Consumer already resumed:", consumer.id);
+        return;
+      }
+      await consumer?.resume();
+      if (consumer.kind === "video") {
+        consumer.requestKeyFrame();
+        setTimeout(() => consumer.requestKeyFrame(), 300);
+        setTimeout(() => consumer.requestKeyFrame(), 800);
+      }
+
+      console.log(
+        `Consumer resumed | kind=${consumer?.kind} | id=${consumer.id}`
+      );
+    } catch (error) {
+      console.error("resume-consumer error:", error);
+    }
+  });
 }

@@ -9,6 +9,7 @@ export default function transportEvents(io: Server, socket: Socket) {
       try {
         const stream = StreamMap.get(streamId);
         if (!stream) {
+          cb({ error: "Stream not found" });
           return;
         }
         const transportParams = await createTransport(
@@ -21,7 +22,7 @@ export default function transportEvents(io: Server, socket: Socket) {
         cb(transportParams);
       } catch (error) {
         console.log("Error in creating transport :", error);
-        cb(error);
+        cb({ error: "Failed to create transport" });
       }
     }
   );
@@ -34,7 +35,9 @@ export default function transportEvents(io: Server, socket: Socket) {
     ) => {
       try {
         const stream = StreamMap.get(streamId);
+        console.log("dtls parameters received ; ", dtlsParameters);
         if (!stream) throw new Error("Stream not found");
+        console.log("Stream found : ", stream);
 
         const transport = findTransport(
           stream,
@@ -43,9 +46,14 @@ export default function transportEvents(io: Server, socket: Socket) {
           socket.id,
           transportId
         );
+        if (!transport) {
+          console.log("No transport found ");
+          throw new Error("No transport found");
+        }
 
         await transport.connect({ dtlsParameters });
-        console.log("Transport connected");
+
+        console.log("Transport connected : ", transport);
 
         cb({ connected: true });
       } catch (error) {
