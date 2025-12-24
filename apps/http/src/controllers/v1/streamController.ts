@@ -6,6 +6,11 @@ import crypto from "crypto";
 export const createStream = async (req: Request, res: Response) => {
   try {
     const { name, description } = req.body;
+
+    if (!req?.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const { id: userId } = req.user;
 
     if (!name)
@@ -135,12 +140,17 @@ const leaveStream = async (req: Request, res: Response) => {
 
 const endStream = async (req: Request, res: Response) => {
   try {
-    const { id } = req.user;
-    const { viewersCount, stream } = req.body;
+    if (!req?.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const { id: userId } = req.user;
+
+    const { viewersCount } = req.body;
 
     const updatedStream = await prisma.stream.updateMany({
       where: {
-        creatorId: id,
+        creatorId: userId,
         status: "LIVE",
       },
       data: {

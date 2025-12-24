@@ -7,6 +7,7 @@
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
+    "typeRoots": ["./node_modules/@types", "./types"],
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
@@ -28,7 +29,14 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    "**/*.mts",
+    "../../packages/types/**/*.d.ts", // Reference shared types
+    "types/**/*.d.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "../http/**", // Exclude HTTP app
+    "../backend/**", // If you have a backend folder
+    "../../packages/http/**" // If HTTP is in packages
+  ]
 }

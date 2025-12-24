@@ -82,7 +82,7 @@ const Navbar = () => {
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                     className="w-9 h-9 rounded-full bg-[#FF6D1F] flex items-center justify-center text-white font-semibold hover:bg-[#e55f18] transition"
                   >
-                    {user.username?.[0].toUpperCase() || "U"}
+                    {user.name?.[0].toUpperCase() || "U"}
                   </button>
 
                   {isProfileOpen && (

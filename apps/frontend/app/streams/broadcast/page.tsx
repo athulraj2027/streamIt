@@ -147,7 +147,7 @@ export default function Home() {
                     rtpParameters,
                     userId: user?.id,
                   },
-                  ({ id }) => cb({ id })
+                  ({ id }: { id: string }) => cb({ id })
                 );
               });
               sendTransportRef.current = transport;
@@ -245,11 +245,10 @@ export default function Home() {
       console.log("viewer data : ", viewers);
       const data = { viewers, stream };
       try {
-        const res = await stopStream(data);
-
+        await stopStream(data);
         toast.success("Stream has been marked completed");
         router.push("/streams");
-      } catch (error) {
+      } catch (error: any) {
         console.log("Error in stopping stream : ", error);
         toast.error(error.message || "Failed to end the stream");
       }

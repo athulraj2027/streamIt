@@ -12,22 +12,27 @@
   "type": "module",
   "dependencies": {
     "@repo/db": "*",
-    "@types/node": "^22.19.1",
+    "@repo/types": "*",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-    "nodemailer": "^7.0.11"
+    "nodemailer": "^7.0.11",
+    "typescript": "^5.9.2"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^22.19.3",
     "@types/nodemailer": "^7.0.4",
     "tsc": "^2.0.4",
     "tsx": "^4.21.0"
+  },
+  "engines": {
+    "node": ">=20.9.0"
   }
 }
