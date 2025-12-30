@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "echo 'No build needed'",
+    "build": "npm run prisma:generate && echo 'No build needed'",
     "start": "tsx src/index.ts"
   },
   "keywords": [],
