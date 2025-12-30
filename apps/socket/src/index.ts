@@ -21,7 +21,7 @@ async function bootstrap() {
 
   const io = new Server(server, {
     cors: {
-      origin: "http://localhost:3000",
+      origin: process.env.FRONTEND_URL,
       methods: ["GET", "POST"],
     },
   });
@@ -53,12 +53,10 @@ async function bootstrap() {
     viewerEvents(io, socket);
     transportEvents(io, socket);
     messageEvents(io, socket);
-
-    
   });
 
-  server.listen(5000, () => {
-    console.log("Server running on http://localhost:5000");
+  server.listen(process.env.PORT, () => {
+    console.log("Server running on ", process.env.PORT);
   });
 }
 
