@@ -1,4 +1,6 @@
-import { getTransporter } from "../config/mail.js";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendEmail = async ({
   to,
@@ -9,18 +11,16 @@ export const sendEmail = async ({
   subject: string;
   html: string;
 }) => {
-  try {
-    const info = await getTransporter().sendMail({
-      from: `"StreamIt" <${process.env.SMTP_USER}>`,
-      to,
-      subject,
-      html,
-    });
+  const { data, error } = await resend.emails.send({
+    from: `"StreamIt" <${process.env.SMTP_USER}>`,
+    to,
+    subject,
+    html,
+  });
 
-    console.log("Email sent: ", info.messageId);
-    return info;
-  } catch (error) {
-    console.error("Error sending email:", error);
-    throw new Error("Email sending failed");
+  if (error) {
+    return console.error({ error });
   }
+
+  console.log({ data });
 };

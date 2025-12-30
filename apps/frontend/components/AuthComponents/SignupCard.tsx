@@ -185,19 +185,19 @@ export default function SignUpCard() {
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t border-[#E2D3B5]" />
           </div>
-          <div className="relative flex justify-center text-xs uppercase">
+          {/* <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-[#FAF3E1] px-2 text-[#444444]">
               Or continue with
             </span>
-          </div>
+          </div> */}
         </div>
 
-        <Button
+        {/* <Button
           variant="outline"
           className="w-full border-[#222222] text-[#222222] hover:bg-[#F5E7C6] font-medium"
         >
           Continue with Google
-        </Button>
+        </Button> */}
 
         <p className="text-center text-sm text-[#333333]">
           Already have an account?{" "}
