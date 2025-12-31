@@ -16,6 +16,7 @@ const setAuthCookie = (res: Response, token: string) => {
     secure: true,
     sameSite: "lax",
     path: "/",
+    domain: ".athulraj.online",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 };
