@@ -13,8 +13,8 @@ import { sendEmail } from "../../helpers/mail.js";
 const setAuthCookie = (res: Response, token: string) => {
   res.cookie(`${process.env.PROJECT_NAME}_token`, token, {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: true,
+    sameSite: "none",
     path: "/",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
