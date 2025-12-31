@@ -9,6 +9,7 @@ import streamerEvents from "./events/streamerEvents";
 import viewerEvents from "./events/viewerEvents";
 import transportEvents from "./events/transport";
 import messageEvents from "./events/message";
+import { GetIpAddress } from "./config/ip";
 
 // backend/index.ts - RIGHT AT THE TOP
 console.log("🌐 MEDIASOUP CONFIG:", {
