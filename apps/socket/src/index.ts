@@ -26,12 +26,30 @@ async function bootstrap() {
     },
   });
 
+  const getPublicIP = (): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      http
+        .get({ host: "api.ipify.org", port: 80, path: "/" }, (resp) => {
+          let data = "";
+
+          resp.on("data", (chunk) => {
+            data += chunk;
+          });
+
+          resp.on("end", () => {
+            resolve(data.trim());
+          });
+        })
+        .on("error", reject);
+    });
+  };
+
+  const ip = await getPublicIP();
+  console.log("Ip address : ", ip);
+
   // Start mediasoup worker
   const worker = await startMediaSoupServer();
   console.log("Mediasoup worker started");
-
-  const ip = await GetIpAddress();
-  console.log("Ip address fetched ; ", ip);
 
   // Socket auth
   io.use((socket, next) => {
