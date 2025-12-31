@@ -11,7 +11,8 @@ export async function createTransport(
   socket: Socket,
   stream: StreamState,
   isStreamer: boolean,
-  userId: string
+  userId: string,
+  ip: string
 ) {
   const router = stream.router;
 
@@ -19,12 +20,12 @@ export async function createTransport(
     listenIps: [
       {
         ip: "0.0.0.0",
-        announcedIp: process.env.ANNOUNCED_IP,
+        announcedIp: ip,
       },
     ],
     enableUdp: true,
     enableTcp: true,
-    preferUdp: true, 
+    preferUdp: true,
     appData: {
       socketId: socket.id,
       recv,

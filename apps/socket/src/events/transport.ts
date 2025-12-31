@@ -2,7 +2,11 @@ import { Server, Socket } from "socket.io";
 import { findTransport, StreamMap } from "../store/stream";
 import { createTransport } from "../mediasoup/transport";
 
-export default function transportEvents(io: Server, socket: Socket) {
+export default function transportEvents(
+  io: Server,
+  socket: Socket,
+  ip: string
+) {
   socket.on(
     "create-transport",
     async ({ recv, streamId, isStreamer, userId }, cb) => {
@@ -17,7 +21,8 @@ export default function transportEvents(io: Server, socket: Socket) {
           socket,
           stream,
           isStreamer,
-          userId
+          userId,
+          ip
         );
         cb(transportParams);
       } catch (error) {

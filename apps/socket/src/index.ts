@@ -30,6 +30,9 @@ async function bootstrap() {
   const worker = await startMediaSoupServer();
   console.log("Mediasoup worker started");
 
+  const ip = await GetIpAddress();
+  console.log("Ip address fetched ; ", ip);
+
   // Socket auth
   io.use((socket, next) => {
     const token = socket.handshake.auth.token;
@@ -51,7 +54,7 @@ async function bootstrap() {
 
     streamerEvents(io, socket, worker);
     viewerEvents(io, socket);
-    transportEvents(io, socket);
+    transportEvents(io, socket, ip);
     messageEvents(io, socket);
   });
 
