@@ -40,6 +40,7 @@ const WatchStreamPage = () => {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [message, setMessage] = useState("");
+   const [needsUserInteraction, setNeedsUserInteraction] = useState(false);
   const recvTransportRef = useRef<Transport | null>(null);
   const consumerRef = useRef<Consumer[]>([]);
   const joinedRef = useRef<boolean>(false);
@@ -61,6 +62,18 @@ const WatchStreamPage = () => {
     }
   };
 
+  const handleStartPlayback = async () => {
+    if (videoRef.current) {
+      try {
+        await videoRef.current.play();
+        setNeedsUserInteraction(false);
+        toast.success("Stream started");
+      } catch (err) {
+        console.error("Play error:", err);
+        toast.error("Failed to start playback");
+      }
+    }
+  };
   useEffect(() => {
     return () => {
       cleanupClient();
@@ -285,6 +298,7 @@ const WatchStreamPage = () => {
                               })
                               .catch((err) => {
                                 console.error("Play error:", err);
+                                setNeedsUserInteraction(true);
                               });
                           }
                         } catch (error) {
@@ -389,6 +403,16 @@ const WatchStreamPage = () => {
           className="w-full md:w-[60%]  rounded-md"
           style={{ height: "600px" }}
         >
+          {needsUserInteraction && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 rounded-md">
+              <button
+                onClick={handleStartPlayback}
+                className="bg-[#FF6D1F] hover:bg-[#e55f1b] text-white font-bold px-8 py-4 rounded-lg text-lg shadow-lg transition-all"
+              >
+                ▶ Click to Start Stream
+              </button>
+            </div>
+          )}
           <video
             ref={videoRef}
             autoPlay
