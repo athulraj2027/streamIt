@@ -1,4 +1,4 @@
-async function GetIpAddress() {
+export async function GetIpAddress() {
   try {
     const ip = await fetch("https://api.ipify.org");
     console.log("Ip address fetched : ", ip);
