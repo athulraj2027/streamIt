@@ -41,10 +41,10 @@ export default function SignInCard() {
 
   async function onSubmit(values: SigninSchema) {
     try {
-      const res = await signinUser(values.email, values.password);
+       await signinUser(values.email, values.password);
       toast.success("Welcome back!");
       fetchUser();
-      router.push("/streams"); // or dashboard
+      router.push("/streams"); 
       router.refresh(); // optional: refresh server state
     } catch (error: any) {
       const message = error.message || "Invalid email or password";
