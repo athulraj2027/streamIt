@@ -55,7 +55,7 @@ export function InputOTPForm() {
 
   async function onSubmit(values: OtpSchema) {
     try {
-      const res = await verifyOtp(values.pin, email, password, username);
+       await verifyOtp(values.pin, email, password, username);
       await fetchUser();
       clearSignupData();
       toast.success("Account verified successfully!");
