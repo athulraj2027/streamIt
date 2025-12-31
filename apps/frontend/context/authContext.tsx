@@ -29,7 +29,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchUser = async () => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+        method: "GET",
         credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
       });
       if (!res.ok) throw new Error("Not authenticated");
       const data = await res.json();
