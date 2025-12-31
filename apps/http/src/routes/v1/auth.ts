@@ -21,8 +21,8 @@ router.post("/logout", (req: AuthRequest, res: Response) => {
     // Clear the cookie by setting it to empty and expired
     res.cookie("streamIt_token", "", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // HTTPS only in prod
-      sameSite: "lax",
+      secure: true, // HTTPS only in prod
+      sameSite: "none",
       path: "/",
       expires: new Date(0), // immediately expire
     });
