@@ -40,7 +40,7 @@ const WatchStreamPage = () => {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [message, setMessage] = useState("");
-   const [needsUserInteraction, setNeedsUserInteraction] = useState(false);
+  const [needsUserInteraction, setNeedsUserInteraction] = useState(false);
   const recvTransportRef = useRef<Transport | null>(null);
   const consumerRef = useRef<Consumer[]>([]);
   const joinedRef = useRef<boolean>(false);
@@ -190,9 +190,8 @@ const WatchStreamPage = () => {
                 if (state === "connected") {
                   console.log("✅ Transport fully connected!");
                   toast.success("Connected to stream");
-                } else if (state === "failed") {
-                  console.error("❌ Transport failed");
-                  toast.error("Connection failed");
+                } else if (state === "failed" && !needsUserInteraction) {
+                  toast.error("Transport connection failed");
                 }
               });
 
@@ -290,7 +289,7 @@ const WatchStreamPage = () => {
                             console.log("🎬 Both tracks ready!");
 
                             // videoRef.current.muted = true;
-                            videoRef.current
+                           await  videoRef.current
                               .play()
                               .then(() => {
                                 console.log("✅ Playing!");
@@ -317,7 +316,7 @@ const WatchStreamPage = () => {
         );
       }
     );
-  }, [streamId, user]);
+  }, [streamId, user, needsUserInteraction]);
 
   useEffect(() => {
     const handleNewMessage = (msg: Comment) => {
