@@ -288,7 +288,7 @@ const WatchStreamPage = () => {
                           if (stream.getTracks().length === 2) {
                             console.log("🎬 Both tracks ready!");
 
-                            // videoRef.current.muted = true;
+                            videoRef.current.muted = true;
                            await  videoRef.current
                               .play()
                               .then(() => {
@@ -417,6 +417,7 @@ const WatchStreamPage = () => {
             autoPlay
             playsInline
             controls
+            // muted
             className="w-full  h-full object-contain rounded-md"
             style={{ backgroundColor: "black" }}
           />
